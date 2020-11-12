@@ -32,12 +32,18 @@ export class SplashBrandScreen extends Component{
                     flex:1,
                     resizeMode:"stretch"
                     },
-                 {width:this.state.dataBrand[2]=="half"?"90%":"100%"}
+                 {width:this.state.dataBrand[2]=="half"?"100%":"100%"}
                 ]}>
              </Image>
 
              <Image source={{uri:this.state.dataBrand[1]}}
-                style={{width:70,height:55}}>
+                style={{
+                    width:70,
+                    height:55,
+                    position:"absolute",
+                    bottom:10,
+                    left:"40%"
+                    }}>
              </Image>
 
             </View>
@@ -84,7 +90,7 @@ export class SplashBrandScreen extends Component{
             // 判断是否广告
             dataAD.push(splash_ad[showIndex_ad].duration),
             // 广告时长
-            splash_ad[showIndex_ad].video_url
+           dataAD.push(splash_ad[showIndex_ad].video_url)
             // 视频路径
         
     }

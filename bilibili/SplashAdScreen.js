@@ -19,27 +19,34 @@ export class SplashAdScreen extends Component{
     }
 
     render(){
-        var is_video=(dataAD[3]!=null)
+       var is_video=(dataAD[3]!=null)
+    
         return(
             <View style={{
-                // display:this.props.hide?"none":"flex",
+                display:this.props.hide?"none":"flex",
                 flex:1
             }}>
 
-                <Image source={{uri:dataAD[0]}}
-                style={{
+                 <Image source={{uri:dataAD[0]}}
+                 style={{
                     flex:1,
                     display:this.props.hide?"none":"flex",
-                    marginBottom:60
-                    }}>
-                </Image>
+                    width:"100%",
+                    height:"100%"
+                    // marginBottom:60
+                   }}>
+                 </Image>
                 <Video 
                     style={{
-                        display:is_video?"flex":"none",
-                        flex:1,
-                        bottom:60,
+                       display:is_video?"flex":"none",
+                        // flex:1,
+                        width:"100%",
+                        height:950,
+                        
+                        bottom:350,
                     }}
                     source={is_video?{uri:dataAD[3]}:require("./allvideo/video_v1.mp4")}
+                    
                     rate={1.0}
                     // 控制暂停播放
                     paused={false}
