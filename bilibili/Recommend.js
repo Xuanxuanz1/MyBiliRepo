@@ -1,13 +1,23 @@
 import React, { Component } from 'react'
-import { Text,View,Image,Dimensions,FlatList,ScrollView,TouchableOpacity,ToastAndroid} from 'react-native';
-import Swiper from 'react-native-swiper'
-import {themeColor, data, data2, data1} from './data'
+import {
+    Text,
+    View,
+    Image,
+    Dimensions,
+    FlatList,
+    ScrollView,
+    TouchableOpacity,
+    ToastAndroid,
+    RefreshControl
+} from 'react-native';
 import {createStackNavigator} from 'react-navigation-stack'
-import {Video} from './Video'
+import Swiper from 'react-native-swiper'
 import {createAppContainer} from "react-navigation"
-
+import {themeColor,data, data1, data2} from './data'
+import {VideoClass} from './Video'
 
 const screenWidth = Dimensions.get('window').width;
+var isRefreshed=false;
 
 // 总样式
 const styles = {
@@ -32,8 +42,8 @@ const styles = {
         // bottom:125,
         // left:5,
         // borderRadius:10,
-        borderTopLeftRadius:5,
-        borderTopRightRadius:5
+        borderTopLeftRadius:8,
+        borderTopRightRadius:8
         
     },
     imagetext:{
@@ -68,19 +78,15 @@ export class Recommend extends Component{
             // 轮播
         }
     }
-    render(){
-        
-        return(
-  
-            <View style={{flex:1}}>
-            
-               <FlatList
-                data={this.state.videoArr}
-                numColumns={2}
-                ListHeaderComponent={
+
+    // 渲染轮播
+    renderCarousel=()=>{
+        if(!isRefreshed&&this.state.carousel){
+            return(
                     // 轮播图
                     <Swiper style={styles.swiper}
                     height={200}
+                    key={this.state.carousel.length}
                     horizontal={true}
                     paginationStyle={styles.paginationStyles}
                     showsButtons={false}
@@ -97,96 +103,124 @@ export class Recommend extends Component{
                         
 
                     </Swiper>
-                }
-                renderItem={({item,index})=>
-                {
-                    if(item.ad_info!=null){
-                        return(
-                            <TouchableOpacity onPress={()=>{
-                                this.props.navigation.navigate('Video',{
-                                position:item.ad_info.creative_content.url
-                                // 回调数据接口
-                                })
-                            ToastAndroid.show("xxx",ToastAndroid.SHORT)
-                            // 测试跳转
-                        }}
-                        >
-                            {/* 广告 */}
-                            <TextList url={item.ad_info.creative_content.image_url}
-                                name={item.ad_info.creative_content.title}
-                                guanggaotext={item.ad_info.extra.card.ad_tag_style.text}
-                                tagname={item.ad_info.extra.card.desc}></TextList>
-                        </TouchableOpacity>
-                        )
-                    }
-                    
-                    // 测试回调数据
-                    if(item.rcmd_reason_style==null){
-                        ToastAndroid.show("null    "+index,ToastAndroid.SHORT)
-                    }else{
-                        ToastAndroid.show(item.rcmd_reason_style.text+"  "+index,ToastAndroid.SHORT)
-                    }
-                   
-                    return(
-                    <TouchableOpacity onPress={()=>{
-                        this.props.navigation.navigate('Video',{
-                            position:item.uri
-                            // 回调数据接口
-                        })
-                        ToastAndroid.show("xxx",ToastAndroid.SHORT)
-                        // 测试转跳
-                    }}
-                    >
-                     <TextList
-                        name={item.title}
-                        // 视频标题 
-                        url={item.cover}
-                        // 视频图片 
-                        play={item.cover_left_text_1}
-                        // 视频播放量 
-                        test={item.cover_left_text_2} 
-                        // 视频弹幕
-                        time={item.cover_right_text} 
-                        // 视频时间
-
-                                                
-                        rcmd_reason={item.rcmd_reason!=null?item.rcmd_reason_style.text:null}
-                        // 点赞
-                        
-                        chuntagname={item.desc_button!=null&&item.rcmd_reason==null&&item.badge==null?item.desc_button.text:null}
-                        //纯text
-
-                        secondtagname={item.desc_button!=null&&item.rcmd_reason!=null&&item.badge==null?item.desc_button.text:null}
-                        //有图标的text
-
-                        thirdtagname={item.args.rname!=null&&item.desc_button==null&&item.rcmd_reason!=null&&item.badge==null?item.args.rname:null}
-                        //点赞text
-
-                        livingtext={item.rcmd_reason==null&&item.badge!=null?item.badge:null}
-                        //直播
-
-                        tagname={item.badge!=null&&item.desc_button!=null?item.desc_button.text:null}
-                        //直播分区
-
-                        sencondgoodtext={item.badge!=null&&item.rcmd_reason_style!=null&&item.desc_button==null?item.rcmd_reason_style.text:null}
-                        //第二位的赞
+            )
+        }
+        else{
+            return null;
+        }
+    }
 
 
-                        // 下面是图标控制
-                        icon_play={item.ad_info==null&&item.badge==null?require('./image/icon_a/play.png'):null}
-                        icon_text={item.ad_info==null&&item.badge==null?require("./image/icon_a/test.png"):null}
-                        icon_living={item.ad_info==null&&item.badge=="直播"?require("./image/icon_a/friend.png"):null}
-                        icon_eyes={item.ad_info==null&&item.badge=="文章"?require("./image/icon_a/eyes.png"):null}
-                        icon_messages={item.ad_info==null&&item.badge=="文章"?require("./image/icon_a/messages.png"):null}
-                        icon_jlplay={item.ad_info==null&&item.badge=="纪录片"||item.badge=="电影"||item.badge=="国创"||item.badge=="番剧"?require("./image/icon_a/play.png"):null}
-                        icon_love={item.ad_info==null&&item.badge=="纪录片"||item.badge=="电影"||item.badge=="国创"||item.badge=="番剧"?require("./image/icon_a/love.png"):null}
-                        />
-                    </TouchableOpacity>
-                )
+    renderRecommendItem=({item})=>{
+        if(item.ad_info!=null){
+            return(
+                <TouchableOpacity onPress={()=>{
+                    this.props.navigation.navigate('Video',{
+                    position:item.ad_info.creative_content.url
+                    // 回调数据接口
+                    })
+                ToastAndroid.show("xxx",ToastAndroid.SHORT)
+                // 测试跳转
+            }}
+            >
+                {/* 广告 */}
+                <TextList url={item.ad_info.creative_content.image_url}
+                    name={item.ad_info.creative_content.title}
+                    guanggaotext={item.ad_info.extra.card.ad_tag_style.text}
+                    tagname={item.ad_info.extra.card.desc}></TextList>
+            </TouchableOpacity>
+            )
+        }
+
+        return(
+            <TouchableOpacity onPress={()=>{
+                this.props.navigation.navigate('Video',{
+                    position:item.uri
+                    // 回调数据接口
+                })
+                ToastAndroid.show("xxx",ToastAndroid.SHORT)
+                // 测试转跳
+            }}
+            >
+             <TextList
+                name={item.title}
+                // 视频标题 
+                url={item.cover}
+                // 视频图片 
+                play={item.cover_left_text_1}
+                // 视频播放量 
+                test={item.cover_left_text_2} 
+                // 视频弹幕
+                time={item.cover_right_text} 
+                // 视频时间
+
+                                        
+                rcmd_reason={item.rcmd_reason!=null?item.rcmd_reason_style.text:null}
+                // 点赞
                 
+                chuntagname={item.desc_button!=null&&item.rcmd_reason==null&&item.badge==null?item.desc_button.text:null}
+                //纯text
+
+                secondtagname={item.desc_button!=null&&item.rcmd_reason!=null&&item.badge==null?item.desc_button.text:null}
+                //有图标的text
+
+                thirdtagname={item.args.rname!=null&&item.desc_button==null&&item.rcmd_reason!=null&&item.badge==null?item.args.rname:null}
+                //点赞text
+
+                livingtext={item.rcmd_reason==null&&item.badge!=null?item.badge:null}
+                //直播
+
+                tagname={item.badge!=null&&item.desc_button!=null?item.desc_button.text:null}
+                //直播分区
+
+                sencondgoodtext={item.badge!=null&&item.rcmd_reason_style!=null&&item.desc_button==null?item.rcmd_reason_style.text:null}
+                //第二位的赞
+
+
+                // 下面是图标控制
+                icon_play={item.ad_info==null&&item.badge==null?require('./image/icon_a/play.png'):null}
+                icon_text={item.ad_info==null&&item.badge==null?require("./image/icon_a/test.png"):null}
+                icon_living={item.ad_info==null&&item.badge=="直播"?require("./image/icon_a/friend.png"):null}
+                icon_eyes={item.ad_info==null&&item.badge=="文章"?require("./image/icon_a/eyes.png"):null}
+                icon_messages={item.ad_info==null&&item.badge=="文章"?require("./image/icon_a/messages.png"):null}
+                icon_jlplay={item.ad_info==null&&item.badge=="纪录片"||item.badge=="电影"||item.badge=="国创"||item.badge=="番剧"?require("./image/icon_a/play.png"):null}
+                icon_love={item.ad_info==null&&item.badge=="纪录片"||item.badge=="电影"||item.badge=="国创"||item.badge=="番剧"?require("./image/icon_a/love.png"):null}
+                />
+            </TouchableOpacity>
+        )
+       }
+    
+    render(){
+      
+        return(
+  
+            <View style={{flex:1}}>
+            
+               <FlatList
+                data={this.state.videoArr}
+                numColumns={2}
+                ListHeaderComponent={
+                    this.renderCarousel
+                }
+               renderItem={this.renderRecommendItem}
+
+               refreshControl={
+                <RefreshControl
+                    refreshing={false}
+                    onRefresh={()=>{
+                        this.init()
+                        isRefreshed=true
+                        // 已刷新
+                    }}
+                    colors={[themeColor]}
+                    >
+                </RefreshControl>
+                // 下拉刷新
                }
-            }
-                keyExtractor={(index)=>index.toString()}
+
+               onEndReached={this._onEndReached.bind(this)}
+               onEndReachedThreshold={0.2}
+               keyExtractor={(item,index) => index}
                />
                
                
@@ -212,15 +246,35 @@ export class Recommend extends Component{
  async init(){
      let recommend = await this.getRecommend()
      let carousel = recommend[0].banner_item
+    //  轮播数据
      recommend.splice(0,1)
+    //  视频数据
+
+     if(!isRefreshed){
+        //  如果页面没有被刷新过，才需要设置轮播数据
+        this.setState({
+            carousel:carousel
+        })
+     }
      this.setState({
          videoArr:recommend,
-         carousel:carousel
-     });
+     })
+     
  }
 
  componentDidMount(){
      this.init()
+    //  初始化页面
+ }
+
+ async _onEndReached(){
+     let recommend = await this.getRecommend()
+    //  获取推荐页数据
+    recommend.splice(0,1)
+    // 截取视频数据
+    this.setState({
+        videoArr:this.state.videoArr.concat(recommend)
+    })
  }
 
 }
@@ -256,7 +310,7 @@ class TextList extends Component{
                 style={{position:"absolute",
                     width:16,
                     height:16,
-                    top:85,
+                    top:90,
                     left:5
                 }}>
             </Image>
@@ -266,7 +320,7 @@ class TextList extends Component{
                 style={{position:"absolute",
                     width:16,
                     height:16,
-                    top:85,
+                    top:90,
                     left:5
                 }}>
             </Image>
@@ -276,7 +330,7 @@ class TextList extends Component{
                 style={{position:"absolute",
                     width:16,
                     height:16,
-                    top:85,
+                    top:90,
                     left:5
                 }}>
             </Image>
@@ -286,7 +340,7 @@ class TextList extends Component{
                 style={{position:"absolute",
                     width:16,
                     height:16,
-                    top:85,
+                    top:90,
                     left:5
                 }}>
             </Image>
@@ -296,7 +350,7 @@ class TextList extends Component{
                 color:"#fff",
                 position:"absolute",
                 fontSize:10,
-                top:86,
+                top:91,
                 left:25
                 }}>
              {this.props.play}
@@ -308,7 +362,7 @@ class TextList extends Component{
                     width:14,
                     height:14,
                     position:"absolute",
-                    top:86,
+                    top:91,
                     left:60
                 }}>
             </Image>
@@ -319,7 +373,7 @@ class TextList extends Component{
                     width:14,
                     height:14,
                     position:"absolute",
-                    top:86,
+                    top:91,
                     left:60
                 }}>
             </Image>
@@ -330,7 +384,7 @@ class TextList extends Component{
                     width:14,
                     height:14,
                     position:"absolute",
-                    top:86,
+                    top:91,
                     left:60
                 }}>
             </Image>
@@ -340,7 +394,7 @@ class TextList extends Component{
                 position:"absolute",
                 fontSize:10,
                 color:"#fff",
-                top:86,
+                top:91,
                 left:76
                 }}>
              {this.props.test}
@@ -351,7 +405,7 @@ class TextList extends Component{
                 position:"absolute",
                 fontSize:10,
                 color:"#fff",
-                top:86,
+                top:91,
                 left:125,
                 width:40
                 }}
@@ -494,7 +548,7 @@ export const  RecommendToVideo =createAppContainer(
                 }
             },
             Video:{
-                screen:Video,
+                screen:VideoClass,
                 navigationOptions:{
                     header:null
                 },
@@ -504,6 +558,15 @@ export const  RecommendToVideo =createAppContainer(
             
 
         },
+        // {
+        //     defaultNavigationOptions:{
+        //         headerShown:false
+        //     }
+        // },
         
     )
 )
+
+
+
+
