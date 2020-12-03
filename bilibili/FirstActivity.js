@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { View,Text,Dimensions,Image,TextInput} from 'react-native';
+import { View,Text,Dimensions,Image,TextInput,DeviceEventEmitter} from 'react-native';
 import {createAppContainer} from 'react-navigation'
 import {createMaterialTopTabNavigator} from 'react-navigation-tabs';
+import {createStackNavigator} from 'react-navigation-stack'
 import {RecommendToVideo} from './Recommend';
 import {Living} from './Living';
 import {Hot} from './Hot';
@@ -13,71 +14,96 @@ var windowWidth=Dimensions.get("window").width;
 //窗口尺寸
 
 export class FirstActivity extends Component{
+    constructor(props){
+        super(props);
+        this.state={
+            searchHide:false,
+        }
+    }
+
+    componentDidMount(){
+        // 设置监听
+        this.subscription = DeviceEventEmitter.addListener('searchHide',(message)=>{
+            this.setState({searchHide:message})
+        })
+        
+    }
+
+    componentWillUnmount(){
+        // 移除监听
+        this.subscription.remove();
+    }
+
+    hideSearch(message){
+        this.setState({searchHide:true})
+    }
+
     render(){
         return(
            
             <View style={{flex:1}}>
+                <View style={{display:this.state.searchHide?"none":"flex"}}>
                 <Image source={require('./image/head.jpg')}
-                   style={{
-                       width:50,
-                       height:50,
-                       borderRadius:100,
-                       left:10,
-                       top:20
-
-                   }}
-                   resizeMode="stretch">
-
-                </Image>
-                
-                
-                <View style={{
-                backgroundColor:"#E0E0E0",
-                width:200,
-                height:35,
-                bottom:20,
-                borderRadius:30,
-                left:70,
-                justifyContent:"flex-start",
-                flexDirection:"row",
-                }}>
-
-                <Image source={require('./image/icon_a/chy.png')}
                     style={{
-                        width:23,
-                        height:23,
-                        top:6,
-                        left:10
-                    }}/>
-                
-                <View>
-                <TextInput style={{
-                    flex:1,
-                    // backgroundColor:themeColor,
-                    fontSize:13,
-                    top:4,
-                    width:140,
-                    
-                    // bottom:10,
-                    left:20,
-                    color:"#000"
-                }}>
-                </TextInput>
-                </View>
+                        width:50,
+                        height:50,
+                        borderRadius:100,
+                        left:10,
+                        top:20
 
-                <Image source={require('./image/icon_a/game.png')}
-                    style={{width:38,
-                            height:38,
-                            left:45
-                            }}/>
+                    }}
+                    resizeMode="stretch">
+
+                    </Image>
+                    <View style={{
+                    backgroundColor:"#E0E0E0",
+                    width:200,
+                    height:35,
+                    bottom:20,
+                    borderRadius:30,
+                    left:70,
+                    justifyContent:"flex-start",
+                    flexDirection:"row",
+                    }}>
+
+                    <Image source={require('./image/icon_a/chy.png')}
+                        style={{
+                            width:23,
+                            height:23,
+                            top:6,
+                            left:10
+                        }}/>
+                    
+                    <View>
+                    <TextInput style={{
+                        flex:1,
+                        // backgroundColor:themeColor,
+                        fontSize:13,
+                        top:4,
+                        width:140,
+                        
+                        // bottom:10,
+                        left:20,
+                        color:"#000"
+                    }}>
+                    </TextInput>
+                    </View>
+
+                    <Image source={require('./image/icon_a/game.png')}
+                        style={{width:38,
+                                height:38,
+                                left:45
+                                }}/>
+                    
+                    <Image source={require('./image/icon_a/message.png')}
+                        style={{width:35,
+                            height:35,
+                            left:50,
+                            top:2
+                            }}></Image>
+                    </View>
+                    </View>
                 
-                <Image source={require('./image/icon_a/message.png')}
-                    style={{width:35,
-                        height:35,
-                        left:50,
-                        top:2
-                        }}></Image>
-                </View>
                 <First/>
             </View>
 
@@ -87,6 +113,8 @@ export class FirstActivity extends Component{
 
     
 }
+
+
 
 const First = createAppContainer(
     createMaterialTopTabNavigator(
@@ -101,7 +129,7 @@ const First = createAppContainer(
         Recommend:{
             screen:RecommendToVideo,
             navigationOptions:{
-                tabBarLabel:({focused})=>renderTabBarLabel(1,focused)
+                tabBarLabel:({focused})=>renderTabBarLabel(1,focused),
             }
         },
 
@@ -121,6 +149,7 @@ const First = createAppContainer(
 
     },
     {
+        
         initialRouteName:"Recommend",
         tabBarOptions:{
             scrollEnabled:true,
@@ -134,10 +163,14 @@ const First = createAppContainer(
             indicatorStyle:{
                 backgroundColor:themeColor
             },
-        },
+            
+            navigationOptions:{header:null}
+            },
     },
     )
+    
 )
+
 
 
 function renderTabBarLabel(index,focused){
@@ -152,5 +185,7 @@ function renderTabBarLabel(index,focused){
         </Text>
     )
 }
+
+
 
 

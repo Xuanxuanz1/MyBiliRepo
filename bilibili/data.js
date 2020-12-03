@@ -13,6 +13,7 @@ const image_g1 = require("./image/image_game/image_g1.png")
 const image_g2 = require("./image/image_game/image_g2.jpg")
 
 export var dataAD=[];
+export var dataVideo=[];
 
 export const data=[
     {

@@ -116,7 +116,7 @@ export class Recommend extends Component{
             return(
                 <TouchableOpacity onPress={()=>{
                     this.props.navigation.navigate('Video',{
-                    position:item.ad_info.creative_content.url
+                    // position:item.ad_info.creative_content.url
                     // 回调数据接口
                     })
                 ToastAndroid.show("xxx",ToastAndroid.SHORT)
@@ -124,25 +124,32 @@ export class Recommend extends Component{
             }}
             >
                 {/* 广告 */}
-                <TextList url={item.ad_info.creative_content.image_url}
-                    name={item.ad_info.creative_content.title}
-                    guanggaotext={item.ad_info.extra.card.ad_tag_style.text}
-                    tagname={item.ad_info.extra.card.desc}></TextList>
+                <TextList url={item.cover}
+                    name={item.desc_button!=null?item.desc_button.text:item.three_point_v2.title}
+                    guanggaotext={"广告"}
+                    tagname={item.title}></TextList>
             </TouchableOpacity>
             )
         }
-
+        
         return(
             <TouchableOpacity onPress={()=>{
                 this.props.navigation.navigate('Video',{
-                    position:item.uri
+                    param:item.param
                     // 回调数据接口
+                    
                 })
                 ToastAndroid.show("xxx",ToastAndroid.SHORT)
                 // 测试转跳
+               
             }}
             >
+            
              <TextList
+             
+                navigation={this.props.navigation}
+                param={item.param}
+                // 视频点击参数
                 name={item.title}
                 // 视频标题 
                 url={item.cover}
@@ -236,7 +243,7 @@ export class Recommend extends Component{
 
     // 获取推荐页数据
  async getRecommend(){
-     let response = await fetch('https://app.bilibili.com/x/v2/feed/index?access_key=506121e539aa58f41186e45ea805a0a1&ad_extra=6BCCA2213B3B094292DFF9454EB0212887A19C8EE2FF44B1B05EEA4164F72165A98D04961D555EC82C416939419FF00DDA8FA77F1173CD7AD10D7EA1B3AA2127214095984D8A2CC09720435619542A8A98A61CE96DD4A5CB29501B13A45DEE831954250FBEEE417BF6ECD5529E975666168E1CA5E47280897BC2FBA3161AE1B37A8C5D2536BB8215A5456394563AE4915ADE5715311EE5CE1A9584AE33823F0FDE7182933F2B0A81C88C386A8BFF367226357B5F0FB715D98DACDF1DBE7260A7BF216DD70CF5E008A3F989BC2032F280DFA5633A0700B9754CBDEF7A8E87E5FEC86E556C6039151A5D227A3DFB31C6CADBB79871628BAD9E3F6CDA781E5E08E93D3BD3B9120A08DF806BB34874F817017FAEC2D7419A45E2B41A76AF817C4E5DD35BB0F0A93FB6485ED1DFF113BED2DFEC026982614BAF2D576E7434BA5CC2EEC2AEDD9166013C0693328B476F55CF1344BC958A3862B9B996126CB1B5C20B7C99178C7AB24B3E557AE0A3FCFE312E05001275455207EE6D4AF4E8691EFA0F203F6F4C5D283C2D96BCC641025D044F009654F185A3FCBCF0F25BE41B179CF05640B52FF688229211399EF1663A14FC8903843F84FD143444759E50155AE42C9B51F51806B38832D319E4C17139EF9A6A850E480C09D5C0F8ADFC1F9050CE5BF589DB1C66FA8A5E4B3DD84C03BD7B1ADF53A45FCB5CC5AF90C3322D50040B2EDAD45BFB07F8BC1ED59569C08CB3B69FC9&appkey=1d8b6e7d45233436&autoplay_card=2&build=6100500&c_locale=zh_CN&channel=bili&column=2&device_name=LIO-AN00&device_type=0&flush=0&fnval=16&fnver=0&force_host=0&fourk=0&guidance=0&https_url_req=0&idx=0&login_event=2&mobi_app=android&network=wifi&open_event=cold&platform=android&pull=true&qn=32&recsys_mode=0&s_locale=zh_CN&splash_id=&statistics=%7B%22appId%22%3A1%2C%22platform%22%3A3%2C%22version%22%3A%226.10.0%22%2C%22abtest%22%3A%22%22%7D&ts=1603944623&sign=3536f6b0a685e22bf5d437518a979e5d')
+     let response = await fetch('https://app.bilibili.com/x/v2/feed/index?access_key=0f2fdcb5a375a686e13c8c841de0e4b1&ad_extra=6BCCA2213B3B094292DFF9454EB0212887A19C8EE2FF44B1B05EEA4164F72165A98D04961D555EC82C416939419FF00DDA8FA77F1173CD7AD10D7EA1B3AA2127214095984D8A2CC09720435619542A8A98A61CE96DD4A5CB29501B13A45DEE831954250FBEEE417BF6ECD5529E975666168E1CA5E47280897BC2FBA3161AE1B37A8C5D2536BB8215A5456394563AE4915ADE5715311EE5CE1A9584AE33823F0FDE7182933F2B0A81C88C386A8BFF367226357B5F0FB715D98DACDF1DBE7260A7BF216DD70CF5E008A3F989BC2032F280DFA5633A0700B9754CBDEF7A8E87E5FEC86E556C6039151A5D227A3DFB31C6CADBB79871628BAD9E3F6CDA781E5E08E93D3BD3B9120A08DF806BB34874F817017FAEC2D7419A45E2B41A76AF817C4E5DD35BB0F0A93FB6485ED1DFF113BED2DFEC026982614BAF2D576E7434BA5CC2EEC2AEDD9166013C0693328B476F55CF1344BC958A3862B9B996126CB1B5C20B7C99178C7AB24B3E557AE0A3FCFE312E05001275455207EE6D4AF4E8691EFA0F203F6F4C5D283C2D96BCC641025D044F009654F185A3FCBCF0F25BE41B179CF05640B52FF688229211399EF1663A14FC8903843F84FD143444759E50155AE42C9B51F51806B38832D319E4C17139EF9A6A850E480C09D5C0F8ADFC1F9050CE5BF589DB1C66FA8A5E4B3DD84C03BD7B1ADF53A45FCB5CC5AF90C3322D50040B2EDAD45BFB07F8BC1ED59569C08CB3B69FC9&appkey=1d8b6e7d45233436&autoplay_card=2&build=6100500&c_locale=zh_CN&channel=bili&column=2&device_name=LIO-AN00&device_type=0&flush=0&fnval=16&fnver=0&force_host=0&fourk=0&guidance=0&https_url_req=0&idx=0&login_event=2&mobi_app=android&network=wifi&open_event=cold&platform=android&pull=true&qn=32&recsys_mode=0&s_locale=zh_CN&splash_id=&statistics=%7B%22appId%22%3A1%2C%22platform%22%3A3%2C%22version%22%3A%226.10.0%22%2C%22abtest%22%3A%22%22%7D&ts=1606789873&sign=0fa16b7f8c973717fbbd123317d3bb4c')
      let responseJson = await response.json()
      let recommend = responseJson.data.items;
      return recommend;
@@ -543,30 +550,41 @@ export const  RecommendToVideo =createAppContainer(
         {
             Recommend:{
                 screen:Recommend,
-                navigationOptions:{
-                    header:null
-                }
+                // navigationOptions:{
+                //     header:null
+                // }
             },
             Video:{
                 screen:VideoClass,
-                navigationOptions:{
-                    header:null
-                },
+                // navigationOptions:{
+                //     header:null
+                // },
             
             },
             
             
 
         },
-        // {
-        //     defaultNavigationOptions:{
-        //         headerShown:false
-        //     }
-        // },
+        {
+            defaultNavigationOptions:{
+                headerShown:false
+            }
+        }
         
     )
 )
 
+
+RecommendToVideo.navigationOptions = ({navigation}) => {
+    let tabBarVisible = true;
+    if (navigation.state.index >0){
+        tabBarVisible = false;
+    }
+
+    return{
+        tabBarVisible,
+    }
+}
 
 
 
